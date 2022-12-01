@@ -49,11 +49,20 @@ int main() {
 
     adc_gpio_init(26);
     adc_init();
-    
+    adc_select_input(0);
+    adc_fifo_setup(
+        true,
+        true,
+        1,
+        false,
+        true
+    );
+    adc_set_clkdiv(1920);
 
     struct command_table_t *table = scpi_new_command_table();
 
     scpi_add_command(table, "LED", led);
+    scpi_add_command(table, "DAQ", daq);
 
     int n_msgs = 0;
     while(1) {
@@ -68,7 +77,7 @@ int main() {
         gpio_put(led_pin, 0);
         struct parsed_command_t *cmd = scpi_parse_msg(msg_in);
         n_msgs++;
-        printf("cmd_name: %s, #args: %d\n", cmd->cmd_name, cmd->num_args);
+        //printf("cmd_name: %s, #args: %d\n", cmd->cmd_name, cmd->num_args);
         scpi_run_command(table, cmd);
         free_parsed_command(cmd);
         gpio_put(led_pin, 1);
