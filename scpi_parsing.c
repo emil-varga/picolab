@@ -5,20 +5,34 @@
 #include "pico/stdlib.h"
 #include "scpi_parsing.h"
 
-struct command_table_t *new_command_table()
+struct command_table_t *scpi_new_command_table()
 {
-    return NULL;
+    struct command_table_t *new_table = (struct command_table_t *)malloc(sizeof(struct command_table_t));
+    new_table->entries = 0;
+    new_table->table_size = 0;
+    new_table->commands = NULL;
+    return new_table;
 };
 
-int add_command(struct command_table_t *table, const char *command, command_callback_t func)
+int scpi_add_command(struct command_table_t *table, const char *command, command_callback_t func)
 {
-    if(table->entries < table->table_size)
+    if(table->entries >= table->table_size)
     {
-        int k = table->entries;
-        strncpy(table->commands[k].cmd_name, command, MAX_COMMAND_LEN);
-        table->commands[k].func = func;
-        table->entries++;
+        int new_size = 2*table->entries;
+        if(new_size < 1)
+            new_size = 1;
+        table->commands = (struct command_entry_t*)realloc(table->commands, new_size*sizeof(struct command_entry_t));
     }
+    int k = table->entries;
+    strncpy(table->commands[k].cmd_name, command, MAX_COMMAND_LEN);
+    table->commands[k].func = func;
+    table->entries++;
+}
+
+void scpi_free_command_table(struct command_table_t *table)
+{
+    free(table->commands);
+    free(table);
 }
 
 void scpi_strncpy_special(char *dst, const char *src, size_t n);
@@ -89,4 +103,14 @@ void free_parsed_command(struct parsed_command_t *cmd){
     for(int k=0; k<cmd->num_args; ++k)
         free(cmd->args[k]);
     free(cmd);
+}
+
+int scpi_run_command(struct command_table_t *table, struct parsed_command_t *command) {
+    for(int k=0; k < table->entries; ++k)
+    {
+        if(!strcasecmp(table->commands[k].cmd_name, command->cmd_name)) {
+            return table->commands[k].func(command);
+        }
+    }
+    return -1;
 }

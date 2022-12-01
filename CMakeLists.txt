@@ -10,6 +10,7 @@ pico_sdk_init()
 add_executable(picolab
     main.c
     scpi_parsing.c
+    commands.c
 )
 
 pico_enable_stdio_usb(picolab 1)
