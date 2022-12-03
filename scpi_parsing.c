@@ -112,5 +112,6 @@ int scpi_run_command(struct command_table_t *table, struct parsed_command_t *com
             return table->commands[k].func(command);
         }
     }
+    printf("Error: Uknonown command %s\n", command->cmd_name);
     return -1;
 }
