@@ -5,7 +5,7 @@
 #include "hardware/gpio.h"
 #include "hardware/adc.h"
 #include "hardware/dma.h"
-#include "hardware/spi.h"
+#include "hardware/i2c.h"
 
 #include "scpi_parsing.h"
 #include "commands.h"
@@ -64,24 +64,18 @@ int main() {
         true
     );
 
-    //Initialize SPI for communication
-    spi_inst_t *spi_inst = spi0;
-    spi_init(spi_inst, 500 * 1000);
-    gpio_set_function(BMP280_MISO, GPIO_FUNC_SPI);
-    gpio_set_function(BMP280_MOSI, GPIO_FUNC_SPI);
-    gpio_set_function(BMP280_CLK, GPIO_FUNC_SPI);
+    //Initialize I2C 0 for communication
+    i2c_inst_t *i2c = i2c0;
+    i2c_init(i2c, 400*1000);
+    gpio_set_function(I2C_SCL, GPIO_FUNC_I2C);
+    gpio_set_function(I2C_SDA, GPIO_FUNC_I2C);
 
-    //chip select, pin is active low
-    gpio_init(BMP280_CS);
-    gpio_set_dir(BMP280_CS, GPIO_OUT);
-    gpio_put(BMP280_CS, 1); //deselect the spi device
-
-    bmp280_read_calibration(spi_inst);
+    bmp280_read_calibration(i2c);
     uint8_t ctrl_meas = 0;
     ctrl_meas = 0b111 << 4; //16x oversampling for temperature
     ctrl_meas |= 0b111 << 2; //16x oversampling for pressure
     ctrl_meas |= 0b11; // normal mode
-    write_register(spi_inst, 0xF4, ctrl_meas);
+    write_register(i2c, BMP280_I2C_ADDR, 0xF4, &ctrl_meas, 1);
 
     //build the table containing assigning functions to scpi commands
     struct command_table_t *table = scpi_new_command_table();

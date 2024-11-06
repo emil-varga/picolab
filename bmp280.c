@@ -3,7 +3,7 @@ SPI communication with the bmp280 device. Most of the code taken from bme280 exa
 */
 #include "bmp280.h"
 #include "hardware/gpio.h"
-#include "hardware/spi.h"
+#include "hardware/i2c.h"
 #include "pins.h"
 
 #define READ_BIT 0x80
@@ -45,47 +45,29 @@ uint32_t compensate_pressure(int32_t adc_P, const struct bmp280_calibration *cal
     return p;
 }
 
-static inline void cs_select() {
-    asm volatile("nop \n nop \n nop");
-    gpio_put(BMP280_CS, 0);  // Active low
-    asm volatile("nop \n nop \n nop");
+int write_register(i2c_inst_t *i2c, const uint8_t addr, const uint8_t reg, uint8_t *buf, const uint8_t nbytes) {
+    uint8_t msg[nbytes + 1];
+    msg[0] = reg;
+    for(int i=0; i<nbytes; ++i)
+        msg[i+1] = buf[i];
+    
+    i2c_write_blocking(i2c, addr, msg, (nbytes+1), false);
+    return 0;
 }
 
-static inline void cs_deselect() {
-    asm volatile("nop \n nop \n nop");
-    gpio_put(BMP280_CS, 1);
-    asm volatile("nop \n nop \n nop");
-}
-
-void write_register(spi_inst_t *spi, uint8_t reg, uint8_t data) {
-    uint8_t buf[2];
-    buf[0] = reg & 0x7f;  // remove read bit as this is a write
-    buf[1] = data;
-    cs_select();
-    spi_write_blocking(spi, buf, 2);
-    cs_deselect();
-    sleep_ms(10);
-}
-
-void read_registers(spi_inst_t *spi, uint8_t reg, uint8_t *buf, uint16_t len) {
-    // For this particular device, we send the device the register we want to read
-    // first, then subsequently read from the device. The register is auto incrementing
-    // so we don't need to keep sending the register we want, just the first.
-    reg |= READ_BIT;
-    cs_select();
-    spi_write_blocking(spi, &reg, 1);
-    sleep_ms(10);
-    spi_read_blocking(spi, 0, buf, len);
-    cs_deselect();
-    sleep_ms(10);
+int read_registers(i2c_inst_t *i2c, const uint8_t addr, const uint8_t reg, uint8_t *buf, const uint8_t nbytes) {
+    i2c_write_blocking(i2c, addr, &reg, 1, true);
+    int num_read = i2c_read_blocking(i2c, addr, buf, nbytes, false);
+    
+    return num_read;
 }
 
 struct bmp280_calibration cal;
 /* This function reads the manufacturing assigned compensation parameters from the device */
-void bmp280_read_calibration(spi_inst_t *spi) {
+void bmp280_read_calibration(i2c_inst_t *i2c) {
     uint8_t buffer[26];
 
-    read_registers(spi, 0x88, buffer, 24);
+    read_registers(i2c, BMP280_I2C_ADDR, 0x88, buffer, 24);
 
     cal.dig_T1 = buffer[0] | (buffer[1] << 8);
     cal.dig_T2 = buffer[2] | (buffer[3] << 8);
@@ -101,21 +83,21 @@ void bmp280_read_calibration(spi_inst_t *spi) {
     cal.dig_P8 = buffer[20] | (buffer[21] << 8);
     cal.dig_P9 = buffer[22] | (buffer[23] << 8);
 
-    read_registers(spi, 0xE1, buffer, 8);
+    read_registers(i2c, BMP280_I2C_ADDR, 0xE1, buffer, 8);
 }
 
-static void bme280_read_raw(spi_inst_t *spi, int32_t *pressure, int32_t *temperature) {
+static void bme280_read_raw(i2c_inst_t *i2c, int32_t *pressure, int32_t *temperature) {
     uint8_t buffer[8];
 
-    read_registers(spi, 0xF7, buffer, 8);
+    read_registers(i2c, BMP280_I2C_ADDR, 0xF7, buffer, 8);
     *pressure = ((uint32_t) buffer[0] << 12) | ((uint32_t) buffer[1] << 4) | (buffer[2] >> 4);
     *temperature = ((uint32_t) buffer[3] << 12) | ((uint32_t) buffer[4] << 4) | (buffer[5] >> 4);
 }
 
-int bmp280_read(spi_inst_t *spi, int32_t *temperature, int32_t *pressure)
+int bmp280_read(i2c_inst_t *i2c, int32_t *temperature, int32_t *pressure)
 {
     int32_t adc_P, adc_T;
-    bme280_read_raw(spi, &adc_P, &adc_T);
+    bme280_read_raw(i2c, &adc_P, &adc_T);
 
     *temperature = compensate_temp(adc_T, &cal);
     *pressure = compensate_pressure(adc_P, &cal);
