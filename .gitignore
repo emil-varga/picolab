@@ -1,2 +1,17 @@
 build
 .vscode
+*.bin
+*.dis
+*.elf
+*.hex
+*.uf2
+pico-sdk*
+pico_sdk*
+Makefile
+elf2uf2
+generated
+picolab.elf.map
+pioasm
+CMakeCache.txt
+CMakeFiles
+cmake_install.cmake
