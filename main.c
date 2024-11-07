@@ -77,6 +77,14 @@ int main() {
     ctrl_meas |= 0b11; // normal mode
     write_register(i2c, BMP280_I2C_ADDR, 0xF4, &ctrl_meas, 1);
 
+    uint8_t to_write = 0;
+    //stop the sleep
+    write_register(i2c, MPU6050_I2C_ADDR, 0x6B, &to_write, 1);
+    //set the accelerometer full scale range to +/- 2g
+    write_register(i2c, MPU6050_I2C_ADDR, 0x1C, &to_write, 1);
+    //set the gyroscope full range scale to +/- 250 deg/s
+    write_register(i2c, MPU6050_I2C_ADDR, 0x1B, &to_write, 1);
+
     //build the table containing assigning functions to scpi commands
     struct command_table_t *table = scpi_new_command_table();
     scpi_add_command(table, ":LED", led);
@@ -85,6 +93,8 @@ int main() {
     scpi_add_command(table, ":READ:PT?", readPT);
     scpi_add_command(table, ":READ:P?", readP);
     scpi_add_command(table, ":READ:T?", readT);
+    scpi_add_command(table, ":READ:ACC?", readACC);
+    scpi_add_command(table, ":READ:GYR?", readGYRO);
 
     int n_msgs = 0;
     while(1) {

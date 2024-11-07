@@ -102,3 +102,19 @@ int bmp280_read(i2c_inst_t *i2c, int32_t *temperature, int32_t *pressure)
     *temperature = compensate_temp(adc_T, &cal);
     *pressure = compensate_pressure(adc_P, &cal);
 }
+
+int mpu6050_read_all(i2c_inst_t *i2c, mpu6050_reading *reading)
+{
+    uint8_t buffer[14];
+    uint8_t n = read_registers(i2c, MPU6050_I2C_ADDR, 0x3B, buffer, sizeof(buffer));
+
+    reading->accel[0] = ((uint16_t) buffer[0]) << 8 | ((uint16_t) buffer[1]);
+    reading->accel[1] = ((uint16_t) buffer[2]) << 8 | ((uint16_t) buffer[3]);
+    reading->accel[2] = ((uint16_t) buffer[4]) << 8 | ((uint16_t) buffer[5]);
+    reading->temp     = ((uint16_t) buffer[6]) << 8 | ((uint16_t) buffer[7]);
+    reading->gyro[0]  = ((uint16_t) buffer[8]) << 8 | ((uint16_t) buffer[9]);
+    reading->gyro[1]  = ((uint16_t) buffer[10]) << 8 | ((uint16_t) buffer[11]);
+    reading->gyro[2]  = ((uint16_t) buffer[12]) << 8 | ((uint16_t) buffer[13]);
+
+    return n;
+}

@@ -102,3 +102,19 @@ int readP(const struct parsed_command_t *cmd) {
     printf("%d\n", pressure);
     return 0;
 }
+
+int readACC(const struct parsed_command_t *cmd)
+{
+    mpu6050_reading reading;
+    mpu6050_read_all(i2c0, &reading);
+    printf("%d %d %d\n", reading.accel[0], reading.accel[1], reading.accel[2]);
+    return 0;
+}
+
+int readGYRO(const struct parsed_command_t *cmd)
+{
+    mpu6050_reading reading;
+    mpu6050_read_all(i2c0, &reading);
+    printf("%d %d %d\n", reading.gyro[0], reading.gyro[1], reading.gyro[2]);
+    return 0;
+}
