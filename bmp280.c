@@ -4,6 +4,7 @@ SPI communication with the bmp280 device. Most of the code taken from bme280 exa
 #include "bmp280.h"
 #include "hardware/gpio.h"
 #include "hardware/spi.h"
+#include "pico/stdlib.h"
 #include "pins.h"
 
 #define READ_BIT 0x80
