@@ -7,11 +7,11 @@
 #define LED3_PIN 3
 #define LED4_PIN 4
 
-#define SPI_INST 0
-#define BMP280_MOSI 19
-#define BMP280_MISO 16
-#define BMP280_CS 17
-#define BMP280_CLK 18
+#define I2C_SCL 13
+#define I2C_SDA 12
+
+#define BMP280_I2C_ADDR 0x76
+#define MPU6050_I2C_ADDR 0x68
 
 #define PIEZO_ADC_CHAN 0
 #define PIEZO_ADC_PIN (26 + PIEZO_ADC_CHAN)

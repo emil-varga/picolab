@@ -20,4 +20,4 @@ target_link_libraries(picolab
     pico_stdlib
     hardware_adc
     hardware_dma
-    hardware_spi)
+    hardware_i2c)

@@ -11,4 +11,7 @@ int readP(const struct parsed_command_t *cmd);
 int readT(const struct parsed_command_t *cmd);
 int readPT(const struct parsed_command_t *cmd);
 
+int readACC(const struct parsed_command_t *cmd);
+int readGYRO(const struct parsed_command_t *cmd);
+
 #endif

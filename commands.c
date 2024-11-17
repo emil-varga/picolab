@@ -5,7 +5,7 @@
 #include "hardware/gpio.h"
 #include "hardware/adc.h"
 #include "hardware/dma.h"
-#include "hardware/spi.h"
+#include "hardware/i2c.h"
 #include "bmp280.h"
 
 #include "pins.h"
@@ -84,21 +84,37 @@ int daq(const struct parsed_command_t *cmd)
 
 int readPT(const struct parsed_command_t *cmd) {
     int32_t pressure, temperature;
-    bmp280_read(spi0, &temperature, &pressure);
+    bmp280_read(i2c0, &temperature, &pressure);
     printf("T%d P%d\n", temperature, pressure);
     return 0;
 }
 
 int readT(const struct parsed_command_t *cmd) {
     int32_t pressure, temperature;
-    bmp280_read(spi0, &temperature, &pressure);
+    bmp280_read(i2c0, &temperature, &pressure);
     printf("%d\n", temperature);
     return 0;
 }
 
 int readP(const struct parsed_command_t *cmd) {
     int32_t pressure, temperature;
-    bmp280_read(spi0, &temperature, &pressure);
+    bmp280_read(i2c0, &temperature, &pressure);
     printf("%d\n", pressure);
+    return 0;
+}
+
+int readACC(const struct parsed_command_t *cmd)
+{
+    mpu6050_reading reading;
+    mpu6050_read_all(i2c0, &reading);
+    printf("%d %d %d\n", reading.accel[0], reading.accel[1], reading.accel[2]);
+    return 0;
+}
+
+int readGYRO(const struct parsed_command_t *cmd)
+{
+    mpu6050_reading reading;
+    mpu6050_read_all(i2c0, &reading);
+    printf("%d %d %d\n", reading.gyro[0], reading.gyro[1], reading.gyro[2]);
     return 0;
 }
