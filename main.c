@@ -12,7 +12,6 @@
 #include "pins.h"
 #include "bmp280.h"
 
-const int led_pin = PICO_DEFAULT_LED_PIN;
 const int max_msg_len = 512;
 
 int read_msg(char *buf, const int max_len) {
@@ -37,20 +36,17 @@ int main() {
     stdio_set_translate_crlf(&stdio_usb, false);
 
     //Initialize LED pins
-    gpio_init(led_pin);
     gpio_init(LED0_PIN);
     gpio_init(LED1_PIN);
     gpio_init(LED2_PIN);
     gpio_init(LED3_PIN);
     gpio_init(LED4_PIN);
 
-    gpio_set_dir(led_pin, GPIO_OUT);
     gpio_set_dir(0, GPIO_OUT);
     gpio_set_dir(1, GPIO_OUT);
     gpio_set_dir(2, GPIO_OUT);
     gpio_set_dir(3, GPIO_OUT);
     gpio_set_dir(4, GPIO_OUT);
-    gpio_put(led_pin, 0);
 
     //Initialize ADC and DMA for reading the piezo
     adc_gpio_init(PIEZO_ADC_PIN);

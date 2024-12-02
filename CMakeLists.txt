@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 set(PICO_SDK_PATH /home/emil/programming/pico-sdk)
+set(PICOTOOL_FORCE_FETCH_FROM_GIT 1)
 include(pico_sdk_import.cmake)
 
 project(picolab C CXX ASM)
