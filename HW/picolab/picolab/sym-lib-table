@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "picolab")(type "KiCad")(uri "${KIPRJMOD}/picolab.kicad_sym")(options "")(descr ""))
+)
