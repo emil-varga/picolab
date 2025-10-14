@@ -12,7 +12,7 @@
 
 int idn(const struct parsed_command_t *cmd)
 {
-    printf("PICO\n");
+    printf("PICO2\n");
     return 0;
 }
 

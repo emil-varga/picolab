@@ -102,6 +102,8 @@ void free_parsed_command(struct parsed_command_t *cmd){
     free(cmd->cmd_name);
     for(int k=0; k<cmd->num_args; ++k)
         free(cmd->args[k]);
+    if(cmd->num_args > 0)
+        free(cmd->args);
     free(cmd);
 }
 

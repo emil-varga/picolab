@@ -33,7 +33,6 @@ int main() {
     char msg_out[max_msg_len];
 
     stdio_usb_init();
-    stdio_set_translate_crlf(&stdio_usb, false);
 
     //Initialize LED pins
     gpio_init(LED0_PIN);
@@ -101,7 +100,7 @@ int main() {
         }
 
         struct parsed_command_t *cmd = scpi_parse_msg(msg_in);
-        n_msgs++;
+        // n_msgs++;
         //printf("cmd_name: %s, #args: %d\n", cmd->cmd_name, cmd->num_args);
         scpi_run_command(table, cmd);
         free_parsed_command(cmd);
